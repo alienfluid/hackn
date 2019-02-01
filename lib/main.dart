@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'posts.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  debugPaintSizeEnabled = true;
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -45,7 +49,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   var posts = <PostWidget>[];
 
   @override
@@ -58,8 +61,12 @@ class _MyHomePageState extends State<MyHomePage> {
     var stream = await getPosts();
     stream.listen((post) => 
       post.then((p) => 
-        setState(() => 
-          posts.add(p))));
+        setState(() { 
+          posts.add(p); 
+          posts.sort((a, b) => b.score.compareTo(a.score));
+        }
+      )
+    ));
   }
 
   @override

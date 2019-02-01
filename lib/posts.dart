@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
+import 'hnutils.dart';
 
 main () async {
   var posts = await getPosts();
@@ -43,24 +44,31 @@ class PostWidget extends StatelessWidget {
     return Container(
         margin: EdgeInsets.all(10),
         child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          Expanded(
-              flex: 4,
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(this.title != null?this.title:'Empty', textAlign: TextAlign.left),
-                    Text(this.url != null?this.url:'Empty', textAlign: TextAlign.left)
-                  ])),
-          Expanded(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: <Widget>[
-                Text(this.score != null?this.score.toString():'-1'),
-                Text(this.descendants != null?this.descendants.toString():'-1')
-              ]))
-        ]));
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            Expanded(
+                flex: 4,
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(this.title != null?this.title:'Empty', 
+                            textAlign: TextAlign.left,
+                            style: TextStyle(fontWeight: FontWeight.bold,
+                            fontSize: 15)),
+                      Text(this.url != null?shortenString(this.url):'Empty', 
+                            textAlign: TextAlign.left,
+                            style: TextStyle(fontSize: 12))
+                    ])),
+            Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: <Widget>[
+                      Text(this.score != null?this.score.toString():'-1'),
+                      Text(this.descendants != null?this.descendants.toString():'-1')
+                ]))
+          ]
+        )
+      );
   }
 
   factory PostWidget.fromJson(Map<String, dynamic> json) {
