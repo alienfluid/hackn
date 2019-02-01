@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'posts.dart';
+import 'saved.dart';
 
 void main() {
   debugPaintSizeEnabled = true;
@@ -70,8 +71,12 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             IconButton(
               icon: Icon(Icons.save, color: Colors.white),
-              onPressed: () {},
-            ),
+              onPressed: () { 
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SavedPage(title: 'Saved page'))
+                );
+              }),
             IconButton(
               icon: Icon(Icons.archive, color: Colors.white),
               onPressed: () {},

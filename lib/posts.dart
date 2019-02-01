@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'hnutils.dart';
 
-main () async {
+main() async {
   var posts = await getPosts();
-  posts.listen((p) => 
-    p.then((i) => print(i.title + " " + i.score.toString() + " " + i.id.toString()))
-  );
+  posts.listen((p) => p.then((i) =>
+      print(i.title + " " + i.score.toString() + " " + i.id.toString())));
 }
 
 /*
@@ -28,7 +28,15 @@ Post:
 
 class PostWidget extends StatelessWidget {
   PostWidget(
-    {Key key, this.author, this.id, this.score, this.time, this.title, this.type, this.url, this.descendants});
+      {Key key,
+      this.author,
+      this.id,
+      this.score,
+      this.time,
+      this.title,
+      this.type,
+      this.url,
+      this.descendants});
 
   final String author;
   final int id;
@@ -43,32 +51,29 @@ class PostWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
         margin: EdgeInsets.all(10),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            Expanded(
-                flex: 4,
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(this.title != null?this.title:'Empty', 
-                            textAlign: TextAlign.left,
-                            style: TextStyle(fontWeight: FontWeight.bold,
-                            fontSize: 15)),
-                      Text(this.url != null?shortenString(this.url):'Empty', 
-                            textAlign: TextAlign.left,
-                            style: TextStyle(fontSize: 12))
-                    ])),
-            Expanded(
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: <Widget>[
-                      Text(this.score != null?this.score.toString():'-1'),
-                      Text(this.descendants != null?this.descendants.toString():'-1')
-                ]))
-          ]
-        )
-      );
+        child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <
+            Widget>[
+          Expanded(
+              flex: 4,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(this.title != null ? this.title : 'Empty',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 15)),
+                    Text(this.url != null ? shortenString(this.url) : 'Empty',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontSize: 12))
+                  ])),
+          Expanded(
+              child:
+                  Column(crossAxisAlignment: CrossAxisAlignment.end, children: <
+                      Widget>[
+            Text(this.score != null ? this.score.toString() : '-1'),
+            Text(this.descendants != null ? this.descendants.toString() : '-1')
+          ]))
+        ]));
   }
 
   factory PostWidget.fromJson(Map<String, dynamic> json) {
@@ -86,12 +91,12 @@ class PostWidget extends StatelessWidget {
 }
 
 Future<PostWidget> fetchPost(id) async {
-  final response =
-      await http.get('https://hacker-news.firebaseio.com/v0/item/' + id.toString() + ".json");
+  final response = await http.get(
+      'https://hacker-news.firebaseio.com/v0/item/' + id.toString() + ".json");
 
   if (response.statusCode == 200) {
-      // If server returns an OK response, parse the JSON
-      return PostWidget.fromJson(json.decode(response.body));
+    // If server returns an OK response, parse the JSON
+    return PostWidget.fromJson(json.decode(response.body));
   } else {
     // If that response was not OK, throw an error.
     throw Exception('Failed to load post');
@@ -100,13 +105,23 @@ Future<PostWidget> fetchPost(id) async {
 
 Future<Stream<Future<PostWidget>>> getPosts() async {
   var url = 'https://hacker-news.firebaseio.com/v0/topstories.json';
-  
+
   var client = new http.Client();
   var streamedRes = await client.send(new http.Request('get', Uri.parse(url)));
 
   return streamedRes.stream
-    .transform(utf8.decoder)
-    .transform(json.decoder)
-    .expand((id) => id)
-    .map((id) => fetchPost(id));
+      .transform(utf8.decoder)
+      .transform(json.decoder)
+      .expand((id) => id)
+      .map((id) => fetchPost(id));
+}
+
+getSavedPosts() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  var ids = prefs.getStringList('hackn_saved_post_ids');
+  if (ids != null) {
+    var posts = ids.map((id) => fetchPost(int.parse(id))).toList();
+    return posts;
+  }
+  return null;
 }
