@@ -50,23 +50,60 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   var posts = <PostWidget>[];
+  Widget makeBottom;
+  ScrollController _scrollController = ScrollController();
 
   @override
   initState() {
     super.initState();
+
+    makeBottom = Container(
+      height: 55.0,
+      child: BottomAppBar(
+        color: Colors.grey,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            IconButton(
+              icon: Icon(Icons.home, color: Colors.white),
+              onPressed: scrollToTop,
+            ),
+            IconButton(
+              icon: Icon(Icons.save, color: Colors.white),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: Icon(Icons.archive, color: Colors.white),
+              onPressed: () {},
+            ),
+          ],
+        ),
+      ),
+    );
+
     listenForPosts();
   }
 
   listenForPosts() async {
     var stream = await getPosts();
-    stream.listen((post) => 
-      post.then((p) => 
-        setState(() { 
-          posts.add(p); 
+    stream.listen((post) => post.then((p) => setState(() {
+          posts.add(p);
           posts.sort((a, b) => b.score.compareTo(a.score));
-        }
-      )
-    ));
+        })));
+  }
+
+  Future<void> onRefresh() async {
+    print("refreshed");
+    setState(() {
+      posts.clear();
+      listenForPosts();
+    });
+  }
+
+  void scrollToTop() {
+    _scrollController.animateTo(0.0,
+        curve: Curves.decelerate, duration: const Duration(milliseconds: 300));
+    setState(() {});
   }
 
   @override
@@ -83,11 +120,15 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: ListView(
-        shrinkWrap: true,
-        padding: const EdgeInsets.all(10.0),
-        children: posts.toList(),
-      ),
+      body: RefreshIndicator(
+          onRefresh: onRefresh,
+          child: ListView(
+            controller: _scrollController,
+            shrinkWrap: true,
+            padding: const EdgeInsets.all(10.0),
+            children: posts.toList(),
+          )),
+      bottomNavigationBar: makeBottom,
     );
   }
 }
