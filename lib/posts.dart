@@ -46,8 +46,19 @@ class PostWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-        //onDoubleTap: savePost(this),
+    return new Dismissible(
+        key: new Key(this.id.toString()),
+        background: new Container(
+            color: Colors.greenAccent, child: Center(child: Text('Archive'))),
+        secondaryBackground: new Container(
+            color: Colors.blueAccent, child: Center(child: Text('Save'))),
+        onDismissed: (dir) {
+          if (dir == DismissDirection.startToEnd) {
+            print('saved');
+          } else {
+            print('archived');
+          }
+        },
         child: Container(
           margin: EdgeInsets.all(10),
           child: Row(
