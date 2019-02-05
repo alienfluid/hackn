@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'posts.dart';
 
-class SavedPage extends StatefulWidget {
-  SavedPage({Key key, this.title}) : super(key: key);
+class ArchivedPage extends StatefulWidget {
+  ArchivedPage({Key key, this.title}) : super(key: key);
 
   final String title;
 
   @override
-  _SavedPageState createState() => _SavedPageState();
+  _ArchivedPageState createState() => _ArchivedPageState();
 }
 
-class _SavedPageState extends State<SavedPage> {
+class _ArchivedPageState extends State<ArchivedPage> {
   var posts = <PostWidget>[];
   Widget makeBottom;
   ScrollController _scrollController = ScrollController();
@@ -34,13 +34,13 @@ class _SavedPageState extends State<SavedPage> {
             ),
             IconButton(
               icon: Icon(Icons.save, color: Colors.white),
-              onPressed: scrollToTop,
+              onPressed: () {
+                Navigator.pushNamed(context, '/saved');
+              },
             ),
             IconButton(
               icon: Icon(Icons.archive, color: Colors.white),
-              onPressed: () {
-                Navigator.pushNamed(context, '/archived');
-              },
+              onPressed: scrollToTop,
             ),
           ],
         ),
@@ -51,7 +51,7 @@ class _SavedPageState extends State<SavedPage> {
   }
 
   loadPosts() async {
-    var p = await getSavedPosts();
+    var p = await getArchivedPosts();
     if (p == null) {
       return;
     }
@@ -87,7 +87,7 @@ class _SavedPageState extends State<SavedPage> {
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text("Saved Posts"),
+        title: Text("Archived Posts"),
       ),
       body: RefreshIndicator(
           onRefresh: onRefresh,

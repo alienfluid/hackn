@@ -125,3 +125,13 @@ getSavedPosts() async {
   }
   return null;
 }
+
+getArchivedPosts() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  var ids = prefs.getStringList('hackn_archived_post_ids');
+  if (ids != null) {
+    var posts = ids.map((id) => fetchPost(int.parse(id))).toList();
+    return posts;
+  }
+  return null;
+}

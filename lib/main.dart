@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'posts.dart';
 import 'saved.dart';
+import 'archived.dart';
 
 void main() {
   debugPaintSizeEnabled = true;
@@ -27,6 +28,12 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.deepOrange,
       ),
       home: MyHomePage(title: 'HackN - News Reader'),
+    
+      routes: {
+        // When we navigate to the "/second" route, build the SecondScreen Widget
+        '/saved': (context) => SavedPage(),
+        '/archived': (context) => ArchivedPage()
+      },
     );
   }
 }
@@ -70,17 +77,15 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: scrollToTop,
             ),
             IconButton(
-              icon: Icon(Icons.save, color: Colors.white),
-              onPressed: () { 
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => SavedPage(title: 'Saved page'))
-                );
-              }),
+                icon: Icon(Icons.save, color: Colors.white),
+                onPressed: () {
+                  Navigator.pushNamed(context, '/saved');
+                }),
             IconButton(
-              icon: Icon(Icons.archive, color: Colors.white),
-              onPressed: () {},
-            ),
+                icon: Icon(Icons.archive, color: Colors.white),
+                onPressed: () {
+                  Navigator.pushNamed(context, '/archived');
+                }),
           ],
         ),
       ),
