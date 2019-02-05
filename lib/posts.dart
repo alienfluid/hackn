@@ -113,10 +113,17 @@ Future<Stream<Future<PostWidget>>> getPosts() async {
   var client = new http.Client();
   var streamedRes = await client.send(new http.Request('get', Uri.parse(url)));
 
+  var ids = await getPostIds(_saved_pref_name);
+  var archivedIds = await getPostIds(_archived_pref_name);
+
+  ids.addAll(archivedIds);
+  List<int> iids = ids.map((i) => int.parse(i)).toList();
+  
   return streamedRes.stream
       .transform(utf8.decoder)
       .transform(json.decoder)
       .expand((id) => id)
+      .where((id) => !iids.contains(id))
       .map((id) => fetchPost(id));
 }
 
@@ -146,6 +153,12 @@ Future<List<Future<PostWidget>>> getArchivedPosts() async {
   }
 
   return null;
+}
+
+Future<List<String>> getPostIds(loc) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  var ids = prefs.getStringList(loc);
+  return ids;
 }
 
 savePost(PostWidget pw) {

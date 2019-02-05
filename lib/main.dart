@@ -136,22 +136,24 @@ class _MyHomePageState extends State<MyHomePage> {
               padding: const EdgeInsets.all(10.0),
               children: posts.map((p) {
                 return Dismissible(
-                  child: p,
-                  key: new Key(p.id.toString()),
-                  background: new Container(
-                      color: Colors.blueAccent, child: Center(child: Text('Save'))),
-                  secondaryBackground: new Container(
-                      color: Colors.greenAccent, child: Center(child: Text('Archive'))),
-                  onDismissed: (dir) {
-                    if (dir == DismissDirection.startToEnd) {
-                      posts.remove(p);
-                      savePost(p);
-                    } else {
-                      posts.remove(p);
-                      archivePost(p);
-                    }});
-              }).toList()
-          )),
+                    child: p,
+                    key: new Key(p.id.toString()),
+                    background: new Container(
+                        color: Colors.blueAccent,
+                        child: Center(child: Text('Save'))),
+                    secondaryBackground: new Container(
+                        color: Colors.greenAccent,
+                        child: Center(child: Text('Archive'))),
+                    onDismissed: (dir) {
+                      if (dir == DismissDirection.startToEnd) {
+                        posts.remove(p);
+                        savePost(p);
+                      } else {
+                        posts.remove(p);
+                        archivePost(p);
+                      }
+                    });
+              }).toList())),
       bottomNavigationBar: makeBottom,
     );
   }
