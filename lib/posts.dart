@@ -128,8 +128,7 @@ Future<Stream<Future<PostWidget>>> getPosts() async {
 }
 
 Future<List<Future<PostWidget>>> getSavedPosts() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  var ids = prefs.getStringList(_saved_pref_name);
+  var ids = await getPostIds(_saved_pref_name);
   if (ids != null) {
     print("saved posts: " + ids.length.toString());
     var posts = ids.map((id) => fetchPost(int.parse(id))).toList();
@@ -142,8 +141,7 @@ Future<List<Future<PostWidget>>> getSavedPosts() async {
 }
 
 Future<List<Future<PostWidget>>> getArchivedPosts() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  var ids = prefs.getStringList(_archived_pref_name);
+  var ids = await getPostIds(_archived_pref_name);
   if (ids != null) {
     print("archived posts: " + ids.length.toString());
     var posts = ids.map((id) => fetchPost(int.parse(id))).toList();
@@ -183,4 +181,24 @@ persistPost(String loc, PostWidget pw) async {
   }
 
   prefs.setStringList(loc, ids);
+}
+
+deleteSavedPost(PostWidget pw) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  var ids = prefs.getStringList(_saved_pref_name);
+
+  if (ids != null) {
+    ids.remove(pw.id.toString());
+    prefs.setStringList(_saved_pref_name, ids);
+  }
+}
+
+deleteArchivedPost(PostWidget pw) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  var ids = prefs.getStringList(_archived_pref_name);
+
+  if (ids != null) {
+    ids.remove(pw.id.toString());
+    prefs.setStringList(_archived_pref_name, ids);
+  }
 }

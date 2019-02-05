@@ -100,7 +100,26 @@ class _ArchivedPageState extends State<ArchivedPage> {
             controller: _scrollController,
             shrinkWrap: true,
             padding: const EdgeInsets.all(10.0),
-            children: posts.toList(),
+            children: posts.map((p) {
+                return Dismissible(
+                    child: p,
+                    key: new Key(p.id.toString()),
+                    direction: DismissDirection.endToStart,
+                    background: new Container(
+                        color: Colors.blueAccent,
+                        child: Center(child: Text('No Action'))),
+                    secondaryBackground: new Container(
+                        color: Colors.blueGrey,
+                        child: Center(child: Text('Unarchive'))),
+                    onDismissed: (dir) {
+                      if (dir == DismissDirection.startToEnd) {
+                        print("no action");
+                      } else {
+                        posts.remove(p);
+                        deleteArchivedPost(p);
+                      }
+                    });
+              }).toList(),
           )),
       bottomNavigationBar: makeBottom,
     );
