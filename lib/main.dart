@@ -28,7 +28,6 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.deepOrange,
       ),
       home: MyHomePage(title: 'HackN - News Reader'),
-    
       routes: {
         // When we navigate to the "/second" route, build the SecondScreen Widget
         '/saved': (context) => SavedPage(),
@@ -64,7 +63,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   initState() {
     super.initState();
-
     makeBottom = Container(
       height: 55.0,
       child: BottomAppBar(
@@ -133,10 +131,26 @@ class _MyHomePageState extends State<MyHomePage> {
       body: RefreshIndicator(
           onRefresh: onRefresh,
           child: ListView(
-            controller: _scrollController,
-            shrinkWrap: true,
-            padding: const EdgeInsets.all(10.0),
-            children: posts.toList(),
+              controller: _scrollController,
+              shrinkWrap: true,
+              padding: const EdgeInsets.all(10.0),
+              children: posts.map((p) {
+                return Dismissible(
+                  child: p,
+                  key: new Key(p.id.toString()),
+                  background: new Container(
+                      color: Colors.blueAccent, child: Center(child: Text('Save'))),
+                  secondaryBackground: new Container(
+                      color: Colors.greenAccent, child: Center(child: Text('Archive'))),
+                  onDismissed: (dir) {
+                    if (dir == DismissDirection.startToEnd) {
+                      posts.remove(p);
+                      savePost(p);
+                    } else {
+                      posts.remove(p);
+                      archivePost(p);
+                    }});
+              }).toList()
           )),
       bottomNavigationBar: makeBottom,
     );

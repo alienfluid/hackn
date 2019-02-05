@@ -46,20 +46,7 @@ class PostWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new Dismissible(
-        key: new Key(this.id.toString()),
-        background: new Container(
-            color: Colors.greenAccent, child: Center(child: Text('Archive'))),
-        secondaryBackground: new Container(
-            color: Colors.blueAccent, child: Center(child: Text('Save'))),
-        onDismissed: (dir) {
-          if (dir == DismissDirection.startToEnd) {
-            print('saved');
-          } else {
-            print('archived');
-          }
-        },
-        child: Container(
+    return new Container(
           margin: EdgeInsets.all(10),
           child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -90,7 +77,7 @@ class PostWidget extends StatelessWidget {
                           : '-1')
                     ]))
               ]),
-        ));
+        );
   }
 
   factory PostWidget.fromJson(Map<String, dynamic> json) {
