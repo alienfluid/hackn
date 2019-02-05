@@ -29,7 +29,8 @@ class _SavedPageState extends State<SavedPage> {
             IconButton(
               icon: Icon(Icons.home, color: Colors.white),
               onPressed: () {
-                Navigator.popUntil(context, ModalRoute.withName(Navigator.defaultRouteName));
+                Navigator.popUntil(
+                    context, ModalRoute.withName(Navigator.defaultRouteName));
               },
             ),
             IconButton(
@@ -55,10 +56,15 @@ class _SavedPageState extends State<SavedPage> {
     if (p == null) {
       return;
     }
+    print("got saved posts to load: " + p.length.toString());
     for (final x in p) {
-      x.then((pw) => posts.add(pw));
+      x.then((pw) {
+        setState(() {
+          posts.add(pw);
+          posts.sort((a, b) => b.time.compareTo(a.time));
+        });
+      });
     }
-    setState(() {});
   }
 
   Future<void> onRefresh() async {

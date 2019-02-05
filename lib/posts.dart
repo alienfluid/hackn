@@ -5,11 +5,8 @@ import 'dart:convert';
 import 'dart:async';
 import 'hnutils.dart';
 
-main() async {
-  var posts = await getPosts();
-  posts.listen((p) => p.then((i) =>
-      print(i.title + " " + i.score.toString() + " " + i.id.toString())));
-}
+const String _saved_pref_name = 'hackn_saved_post_ids';
+const String _archived_pref_name = 'hackn_archived_post_ids';
 
 /*
 Post:
@@ -49,31 +46,40 @@ class PostWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        margin: EdgeInsets.all(10),
-        child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <
-            Widget>[
-          Expanded(
-              flex: 4,
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(this.title != null ? this.title : 'Empty',
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 15)),
-                    Text(this.url != null ? shortenString(this.url) : 'Empty',
-                        textAlign: TextAlign.left,
-                        style: TextStyle(fontSize: 12))
-                  ])),
-          Expanded(
-              child:
-                  Column(crossAxisAlignment: CrossAxisAlignment.end, children: <
-                      Widget>[
-            Text(this.score != null ? this.score.toString() : '-1'),
-            Text(this.descendants != null ? this.descendants.toString() : '-1')
-          ]))
-        ]));
+    return GestureDetector(
+        //onDoubleTap: savePost(this),
+        child: Container(
+          margin: EdgeInsets.all(10),
+          child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                Expanded(
+                    flex: 4,
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(this.title != null ? this.title : 'Empty',
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 15)),
+                          Text(
+                              this.url != null
+                                  ? shortenString(this.url)
+                                  : 'Empty',
+                              textAlign: TextAlign.left,
+                              style: TextStyle(fontSize: 12))
+                        ])),
+                Expanded(
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: <Widget>[
+                      Text(this.score != null ? this.score.toString() : '-1'),
+                      Text(this.descendants != null
+                          ? this.descendants.toString()
+                          : '-1')
+                    ]))
+              ]),
+        ));
   }
 
   factory PostWidget.fromJson(Map<String, dynamic> json) {
@@ -116,22 +122,54 @@ Future<Stream<Future<PostWidget>>> getPosts() async {
       .map((id) => fetchPost(id));
 }
 
-getSavedPosts() async {
+Future<List<Future<PostWidget>>> getSavedPosts() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  var ids = prefs.getStringList('hackn_saved_post_ids');
+  var ids = prefs.getStringList(_saved_pref_name);
   if (ids != null) {
+    print("saved posts: " + ids.length.toString());
     var posts = ids.map((id) => fetchPost(int.parse(id))).toList();
     return posts;
+  } else {
+    print("saved posts null");
   }
+
   return null;
 }
 
-getArchivedPosts() async {
+Future<List<Future<PostWidget>>> getArchivedPosts() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  var ids = prefs.getStringList('hackn_archived_post_ids');
+  var ids = prefs.getStringList(_archived_pref_name);
   if (ids != null) {
+    print("archived posts: " + ids.length.toString());
     var posts = ids.map((id) => fetchPost(int.parse(id))).toList();
     return posts;
+  } else {
+    print("archived posts null");
   }
+
   return null;
+}
+
+savePost(PostWidget pw) {
+  print("saving post - " + pw.title);
+  persistPost(_saved_pref_name, pw);
+}
+
+archivePost(PostWidget pw) {
+  print("archiving post - " + pw.title);
+  persistPost(_archived_pref_name, pw);
+}
+
+persistPost(String loc, PostWidget pw) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  var ids = prefs.getStringList(loc);
+
+  if (ids != null) {
+    ids.add(pw.id.toString());
+  } else {
+    ids = new List<String>();
+    ids.add(pw.id.toString());
+  }
+
+  prefs.setStringList(loc, ids);
 }

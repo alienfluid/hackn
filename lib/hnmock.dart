@@ -1,6 +1,10 @@
 import 'package:random_string/random_string.dart' as random;
 import "posts.dart";
 
+main() {
+  print("here");
+}
+
 PostWidget generateRandom() {
   var headline = random.randomAlpha(int.parse(random.randomNumeric(2)));
   var url =

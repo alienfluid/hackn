@@ -50,15 +50,20 @@ class _ArchivedPageState extends State<ArchivedPage> {
     loadPosts();
   }
 
-  loadPosts() async {
+ loadPosts() async {
     var p = await getArchivedPosts();
     if (p == null) {
       return;
     }
+    print("got archived posts to load: " + p.length.toString());
     for (final x in p) {
-      x.then((pw) => posts.add(pw));
+      x.then((pw) {
+        setState(() {
+          posts.add(pw);
+          posts.sort((a, b) => b.time.compareTo(a.time));
+        });
+      });
     }
-    setState(() {});
   }
 
   Future<void> onRefresh() async {
