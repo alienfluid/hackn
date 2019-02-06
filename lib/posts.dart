@@ -48,37 +48,43 @@ class PostWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new InkWell(
-      onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DetailScreen(post: this),
-          )),
+        onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DetailScreen(post: this),
+            )),
         child: Container(
-      margin: EdgeInsets.all(10),
-      child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <
-          Widget>[
-        Expanded(
-            flex: 4,
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(this.title != null ? this.title : 'Empty',
-                      textAlign: TextAlign.left,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                  Text(this.url != null ? shortenString(this.url) : 'Empty',
-                      textAlign: TextAlign.left, style: TextStyle(fontSize: 12))
-                ])),
-        Expanded(
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: <Widget>[
-              Text(this.score != null ? this.score.toString() : '-1'),
-              Text(
-                  this.descendants != null ? this.descendants.toString() : '-1')
-            ]))
-      ]),
-    ));
+          margin: EdgeInsets.all(10),
+          child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                Expanded(
+                    flex: 4,
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(this.title != null ? this.title : 'Empty',
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 15)),
+                          Text(
+                              this.url != null
+                                  ? shortenString(this.url)
+                                  : 'Empty',
+                              textAlign: TextAlign.left,
+                              style: TextStyle(fontSize: 12))
+                        ])),
+                Expanded(
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: <Widget>[
+                      Text(this.score != null ? this.score.toString() : '-1'),
+                      Text(this.descendants != null
+                          ? this.descendants.toString()
+                          : '-1')
+                    ]))
+              ]),
+        ));
   }
 
   factory PostWidget.fromJson(Map<String, dynamic> json) {
@@ -95,8 +101,8 @@ class PostWidget extends StatelessWidget {
   }
 }
 
-Future<PostWidget> fetchPost(id) async {
-  final response = await http.get(
+Future<PostWidget> fetchPost(id, httpClient) async {
+  final response = await httpClient.get(
       'https://hacker-news.firebaseio.com/v0/item/' + id.toString() + ".json");
 
   if (response.statusCode == 200) {
@@ -125,14 +131,15 @@ Future<Stream<Future<PostWidget>>> getPosts() async {
       .transform(json.decoder)
       .expand((id) => id)
       .where((id) => !iids.contains(id))
-      .map((id) => fetchPost(id));
+      .map((id) => fetchPost(id, client));
 }
 
 Future<List<Future<PostWidget>>> getSavedPosts() async {
+  var client = new http.Client();
   var ids = await getPostIds(_saved_pref_name);
   if (ids != null) {
     print("saved posts: " + ids.length.toString());
-    var posts = ids.map((id) => fetchPost(int.parse(id))).toList();
+    var posts = ids.map((id) => fetchPost(int.parse(id), client)).toList();
     return posts;
   } else {
     print("saved posts null");
@@ -142,10 +149,11 @@ Future<List<Future<PostWidget>>> getSavedPosts() async {
 }
 
 Future<List<Future<PostWidget>>> getArchivedPosts() async {
+  var client = new http.Client();
   var ids = await getPostIds(_archived_pref_name);
   if (ids != null) {
     print("archived posts: " + ids.length.toString());
-    var posts = ids.map((id) => fetchPost(int.parse(id))).toList();
+    var posts = ids.map((id) => fetchPost(int.parse(id), client)).toList();
     return posts;
   } else {
     print("archived posts null");
