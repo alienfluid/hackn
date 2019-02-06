@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'hnutils.dart';
+import 'details.dart';
 
 const String _saved_pref_name = 'hackn_saved_post_ids';
 const String _archived_pref_name = 'hackn_archived_post_ids';
@@ -46,38 +47,38 @@ class PostWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new Container(
-          margin: EdgeInsets.all(10),
-          child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                Expanded(
-                    flex: 4,
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(this.title != null ? this.title : 'Empty',
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 15)),
-                          Text(
-                              this.url != null
-                                  ? shortenString(this.url)
-                                  : 'Empty',
-                              textAlign: TextAlign.left,
-                              style: TextStyle(fontSize: 12))
-                        ])),
-                Expanded(
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: <Widget>[
-                      Text(this.score != null ? this.score.toString() : '-1'),
-                      Text(this.descendants != null
-                          ? this.descendants.toString()
-                          : '-1')
-                    ]))
-              ]),
-        );
+    return new InkWell(
+      onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailScreen(post: this),
+          )),
+        child: Container(
+      margin: EdgeInsets.all(10),
+      child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <
+          Widget>[
+        Expanded(
+            flex: 4,
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(this.title != null ? this.title : 'Empty',
+                      textAlign: TextAlign.left,
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                  Text(this.url != null ? shortenString(this.url) : 'Empty',
+                      textAlign: TextAlign.left, style: TextStyle(fontSize: 12))
+                ])),
+        Expanded(
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: <Widget>[
+              Text(this.score != null ? this.score.toString() : '-1'),
+              Text(
+                  this.descendants != null ? this.descendants.toString() : '-1')
+            ]))
+      ]),
+    ));
   }
 
   factory PostWidget.fromJson(Map<String, dynamic> json) {
@@ -118,7 +119,7 @@ Future<Stream<Future<PostWidget>>> getPosts() async {
 
   ids.addAll(archivedIds);
   List<int> iids = ids.map((i) => int.parse(i)).toList();
-  
+
   return streamedRes.stream
       .transform(utf8.decoder)
       .transform(json.decoder)
