@@ -26,6 +26,7 @@ dependencies:
   intl: ^0.15.7
   flutter_html: ^0.9.4
   timeago: ^2.0.10
+  url_launcher: ^5.0.0
 
 dev_dependencies:
   flutter_test:

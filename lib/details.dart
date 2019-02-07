@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'posts.dart';
 import 'hnutils.dart';
 import 'comments.dart';
@@ -113,6 +114,10 @@ class DetailTile extends StatelessWidget {
 
   DetailTile({Key key, @required this.post}) : super(key: key);
 
+  _launchURL(url) async {
+    await launch(url);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -146,22 +151,27 @@ class DetailTile extends StatelessWidget {
                           textScaleFactor: 1.2,
                           style: TextStyle(fontWeight: FontWeight.bold))),
                 ])),
-            Container(
-                padding: EdgeInsets.all(10.0),
-                child: Row(children: <Widget>[
-                  Container(
-                      padding: EdgeInsets.fromLTRB(0, 0, 5, 0),
-                      child: Icon(Icons.open_in_browser)),
-                  Expanded(child: Text(shortenString(this.post.url))),
-                ])),
-            Container(
-                padding: EdgeInsets.all(10.0),
-                child: Row(children: <Widget>[
-                  Container(
-                      padding: EdgeInsets.fromLTRB(0, 0, 5, 0),
-                      child: Icon(Icons.open_in_browser)),
-                  Expanded(child: Text(shortenString(getHNUrl(this.post.id)))),
-                ])),
+            InkWell(
+                onTap: () => _launchURL(this.post.url),
+                child: Container(
+                    padding: EdgeInsets.all(10.0),
+                    child: Row(children: <Widget>[
+                      Container(
+                          padding: EdgeInsets.fromLTRB(0, 0, 5, 0),
+                          child: Icon(Icons.open_in_browser)),
+                      Expanded(child: Text(shortenString(this.post.url))),
+                    ]))),
+            InkWell(
+                onTap: () => _launchURL(getHNUrl(this.post.id)),
+                child: Container(
+                    padding: EdgeInsets.all(10.0),
+                    child: Row(children: <Widget>[
+                      Container(
+                          padding: EdgeInsets.fromLTRB(0, 0, 5, 0),
+                          child: Icon(Icons.open_in_browser)),
+                      Expanded(
+                          child: Text(shortenString(getHNUrl(this.post.id)))),
+                    ]))),
           ],
         ));
   }
