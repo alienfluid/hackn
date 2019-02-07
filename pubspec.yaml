@@ -27,6 +27,7 @@ dependencies:
   flutter_html: ^0.9.4
   timeago: ^2.0.10
   url_launcher: ^5.0.0
+  speech_bubble: ^0.0.5
 
 dev_dependencies:
   flutter_test:

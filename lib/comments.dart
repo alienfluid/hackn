@@ -101,10 +101,10 @@ Future<CommentThread> fetchCommentThread(id, httpClient) async {
       'https://hacker-news.firebaseio.com/v0/item/' + id.toString() + ".json");
 
   CommentThread parent = new CommentThread();
-  if (response.statusCode == 200) {
+  if (response.statusCode == 200 && response.body != "null") {
     parent.root = Comment.fromJson(json.decode(response.body));
   } else {
-    throw Exception('Failed to load post');
+    return parent;
   }
 
   if (parent.root.kids != null && parent.root.kids.length > 0) {

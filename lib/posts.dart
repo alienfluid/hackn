@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:speech_bubble/speech_bubble.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'hnutils.dart';
@@ -57,40 +58,50 @@ class PostWidget extends StatelessWidget {
             )),
         child: Container(
           margin: EdgeInsets.all(10),
-          child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                Expanded(
-                    flex: 4,
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(this.title != null ? this.title : 'Empty',
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 15)),
-                          Text(
-                              this.url != null
-                                  ? shortenString(this.url)
-                                  : 'Empty',
-                              textAlign: TextAlign.left,
-                              style: TextStyle(fontSize: 12))
-                        ])),
-                Expanded(
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: <Widget>[
-                      Text(this.score != null ? this.score.toString() : '-1'),
-                      Text(this.descendants != null
-                          ? this.descendants.toString()
-                          : '-1')
-                    ]))
-              ]),
+          child:
+              Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <
+                  Widget>[
+            Expanded(
+                flex: 4,
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(this.title != null ? this.title : 'Empty',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 15)),
+                      Container(
+                          padding: EdgeInsets.all(2),
+                          child: Row(children: <Widget>[
+                            Text(this.author,
+                                style: TextStyle(fontStyle: FontStyle.italic)),
+                            Spacer(),
+                            Text(getTimeAgo(this.time)),
+                            Spacer(flex: 8)
+                          ])),
+                      Text(this.url != null ? shortenString(this.url) : 'Empty',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(fontSize: 12)),
+                    ])),
+            Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: <Widget>[
+                  SpeechBubble(
+                      child: Text(
+                          this.descendants != null
+                              ? this.descendants.toString()
+                              : '0',
+                          textScaleFactor: 1.1,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white))),
+                ]))
+          ]),
         ));
   }
 
   factory PostWidget.fromJson(Map<String, dynamic> json) {
-
     var k = json['kids'];
     var kids;
     if (k != null) {
@@ -153,9 +164,17 @@ Future<Stream<PostWidget>> getPosts() async {
     var savedIds = await getPostIds(_saved_pref_name);
     var archivedIds = await getPostIds(_archived_pref_name);
 
-    List<int> iids = savedIds.map((i) => int.parse(i)).toList();
-    iids.addAll(archivedIds.map((i) => int.parse(i)).toList());
-
+    List<int> iids;
+    if (savedIds != null) {
+      iids = savedIds.map((i) => int.parse(i)).toList();
+    }
+    if (archivedIds != null) {
+      if (iids != null) {
+        iids.addAll(archivedIds.map((i) => int.parse(i)).toList());
+      } else {
+        iids = archivedIds.map((i) => int.parse(i)).toList();
+      }
+    }
     return streamPosts(ids, iids);
   } else {
     throw Exception('Failed to get top posts');

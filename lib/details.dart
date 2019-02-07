@@ -75,7 +75,7 @@ class _CommentThreadListState extends State<CommentThreadList> {
   }
 
   List<Widget> composeComments(CommentThread t, int depth, List<Widget> acc) {
-    if (t.root.deleted == null || t.root.deleted != true) {
+    if ((t.root.deleted == null || t.root.deleted != true) && t.root.id != null) {
       var x = Container(
           padding: EdgeInsets.fromLTRB(5 + (depth * 8.0), 5, 0, 0),
           child: Column(children: <Widget>[
@@ -152,14 +152,19 @@ class DetailTile extends StatelessWidget {
                           style: TextStyle(fontWeight: FontWeight.bold))),
                 ])),
             InkWell(
-                onTap: () => _launchURL(this.post.url),
+                onTap: () => _launchURL(this.post.url != null
+                    ? this.post.url
+                    : getHNUrl(this.post.id)),
                 child: Container(
                     padding: EdgeInsets.all(10.0),
                     child: Row(children: <Widget>[
                       Container(
                           padding: EdgeInsets.fromLTRB(0, 0, 5, 0),
                           child: Icon(Icons.open_in_browser)),
-                      Expanded(child: Text(shortenString(this.post.url))),
+                      Expanded(
+                          child: Text(this.post.url != null
+                              ? shortenString(this.post.url)
+                              : '')),
                     ]))),
             InkWell(
                 onTap: () => _launchURL(getHNUrl(this.post.id)),
