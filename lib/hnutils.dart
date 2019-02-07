@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 main() {
   print(shortenString("This is a test of a long string"));
@@ -21,4 +22,8 @@ String getHumanTime(int epoch) {
 
 String getHNUrl(int id) {
   return "https://news.ycombinator.com/item?id=" + id.toString();
+}
+
+String getTimeAgo(int time) {
+  return timeago.format(new DateTime.fromMillisecondsSinceEpoch(time * 1000));
 }

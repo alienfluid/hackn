@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'posts.dart';
 import 'hnutils.dart';
+import 'comments.dart';
 
 class DetailScreen extends StatelessWidget {
   // Declare a field that holds the Todo
@@ -12,12 +14,102 @@ class DetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        actions: <Widget>[
-        ],
-      ),
-      body: DetailTile(post: this.post),
-    );
+        appBar: AppBar(
+          actions: <Widget>[],
+        ),
+        body: Column(children: <Widget>[
+          DetailTile(post: this.post),
+          Expanded(child: new CommentThreadList(post: this.post))
+        ]));
+  }
+}
+
+class CommentThreadList extends StatefulWidget {
+  CommentThreadList({Key key, @required this.post}) : super(key: key);
+
+  final PostWidget post;
+
+  @override
+  _CommentThreadListState createState() => _CommentThreadListState();
+}
+
+class _CommentThreadListState extends State<CommentThreadList> {
+  var threadList = <CommentThread>[];
+
+  @override
+  initState() {
+    super.initState();
+    listenForComments();
+  }
+
+  listenForComments() async {
+    var stream = await getComments(widget.post);
+    stream.listen((thread) {
+      if (this.mounted) {
+        setState(() {
+          threadList.add(thread);
+        });
+      }
+    }, onDone: () {});
+  }
+
+  String nonNull(String s) {
+    if (s == null) {
+      return "";
+    } else {
+      return s;
+    }
+  }
+
+  Widget formatComment(String c) {
+    if (c == null) {
+      return Text("");
+    } else {
+      return Html(data: c);
+    }
+  }
+
+  Widget formatAuthor(String author, int time) {
+    return Container(
+        child: Row(children: <Widget>[
+      Icon(Icons.person, color: Colors.blueGrey),
+      Text(nonNull(author)),
+      Spacer(),
+      Text(getTimeAgo(time)),
+      Spacer(flex: 8)
+    ]));
+  }
+
+  List<Widget> composeComments(CommentThread t, int depth, List<Widget> acc) {
+    var x = Container(
+        padding: EdgeInsets.fromLTRB(depth * 8.0, 5, 0, 0),
+        child: Column(children: <Widget>[
+          formatAuthor(t.root.author, t.root.time),
+          formatComment(t.root.text)
+        ]));
+
+    acc.add(x);
+
+    for (final c in t.children) {
+      composeComments(c, depth + 1, acc);
+    }
+
+    return acc;
+  }
+
+  Widget renderThread(CommentThread t, int depth) {
+    List<Widget> v = composeComments(t, depth, new List<Widget>());
+    return Column(children: v);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new ListView.builder(
+        shrinkWrap: true,
+        itemCount: threadList.length,
+        itemBuilder: (BuildContext ctxt, int index) {
+          return renderThread(threadList[index], 0);
+        });
   }
 }
 

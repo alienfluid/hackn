@@ -45,7 +45,7 @@ class PostWidget extends StatelessWidget {
   final String type;
   final String url;
   final int descendants;
-  final List<dynamic> kids;
+  final List<int> kids;
 
   @override
   Widget build(BuildContext context) {
@@ -90,6 +90,15 @@ class PostWidget extends StatelessWidget {
   }
 
   factory PostWidget.fromJson(Map<String, dynamic> json) {
+
+    var k = json['kids'];
+    var kids;
+    if (k != null) {
+      kids = new List<int>.from(k);
+    } else {
+      kids = new List<int>();
+    }
+
     return PostWidget(
       author: json['by'],
       id: json['id'],
@@ -99,7 +108,7 @@ class PostWidget extends StatelessWidget {
       type: json['type'],
       url: json['url'],
       descendants: json['descendants'],
-      kids: json['kids'],
+      kids: kids,
     );
   }
 }

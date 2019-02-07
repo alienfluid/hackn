@@ -2,6 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import 'hnutils.dart';
+import 'posts.dart';
 
 printCommentThread(CommentThread t, int spaces) {
   String x = "";
@@ -14,7 +15,7 @@ printCommentThread(CommentThread t, int spaces) {
   }
 }
 
-main () async {
+main() async {
   var x = new http.Client();
   var t = await fetchCommentThread(19104316, x);
   printCommentThread(t, 0);
@@ -51,7 +52,6 @@ class Comment {
       this.type});
 
   factory Comment.fromJson(Map<String, dynamic> json) {
-
     var k = json['kids'];
     var kids;
     if (k != null) {
@@ -112,4 +112,20 @@ Future<CommentThread> fetchCommentThread(id, httpClient) async {
   }
 
   return parent;
+}
+
+Stream<CommentThread> streamCommentThreads(List<int> ids) async* {
+  var client = new http.Client();
+  for (final id in ids) {
+    var x = await fetchCommentThread(id, client);
+    yield x;
+  }
+}
+
+Future<Stream<CommentThread>> getComments(PostWidget p) async {
+  if (p.kids != null && p.kids.length > 0) {
+    return streamCommentThreads(p.kids);
+  } else {
+    return streamCommentThreads(new List<int>());
+  }
 }
