@@ -89,7 +89,7 @@ class PostWidget extends StatelessWidget {
 
   factory PostWidget.fromJson(Map<String, dynamic> json) {
     return PostWidget(
-      author: json['author'],
+      author: json['by'],
       id: json['id'],
       score: json['score'],
       time: json['time'],
@@ -114,24 +114,40 @@ Future<PostWidget> fetchPost(id, httpClient) async {
   }
 }
 
-Future<Stream<Future<PostWidget>>> getPosts() async {
+Stream<PostWidget> streamPosts(List<int> ids, List<int> toFilter) async* {
+  var client = new http.Client();
+
+  for (final id in ids) {
+    if (toFilter != null) {
+      if (toFilter.contains(id)) {
+        continue;
+      }
+    }
+    var x = await fetchPost(id, client);
+    yield x;
+  }
+}
+
+Future<Stream<PostWidget>> getPosts() async {
   var url = 'https://hacker-news.firebaseio.com/v0/topstories.json';
 
   var client = new http.Client();
-  var streamedRes = await client.send(new http.Request('get', Uri.parse(url)));
+  var response = await client.get(Uri.parse(url));
 
-  var ids = await getPostIds(_saved_pref_name);
-  var archivedIds = await getPostIds(_archived_pref_name);
+  if (response.statusCode == 200) {
+    Iterable l = json.decode(response.body);
+    List<int> ids = l.map((id) => id as int).toList();
 
-  ids.addAll(archivedIds);
-  List<int> iids = ids.map((i) => int.parse(i)).toList();
+    var savedIds = await getPostIds(_saved_pref_name);
+    var archivedIds = await getPostIds(_archived_pref_name);
 
-  return streamedRes.stream
-      .transform(utf8.decoder)
-      .transform(json.decoder)
-      .expand((id) => id)
-      .where((id) => !iids.contains(id))
-      .map((id) => fetchPost(id, client));
+    List<int> iids = savedIds.map((i) => int.parse(i)).toList();
+    iids.addAll(archivedIds.map((i) => int.parse(i)).toList());
+
+    return streamPosts(ids, iids);
+  } else {
+    throw Exception('Failed to get top posts');
+  }
 }
 
 Future<List<Future<PostWidget>>> getSavedPosts() async {

@@ -94,20 +94,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
   listenForPosts() async {
     var stream = await getPosts();
-    stream.listen((post) => post.then((p) {
-      print("post received");
+    stream.listen((post) {
       setState(() {
-        posts.add(p);
-        posts.sort((a, b) => b.score.compareTo(a.score));
+        posts.add(post);
       });
-    }),
-    onDone: () { print("done loading posts");}
-    );
-    
+    }, onDone: () {
+    });
   }
 
   Future<void> onRefresh() async {
-    print("refreshed");
     setState(() {
       posts.clear();
       listenForPosts();

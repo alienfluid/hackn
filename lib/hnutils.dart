@@ -13,8 +13,8 @@ String shortenString(String s) {
 }
 
 String getHumanTime(int epoch) {
-  DateTime d = new DateTime.fromMicrosecondsSinceEpoch(epoch);
-  var format = new DateFormat("yMd");
+  DateTime d = new DateTime.fromMillisecondsSinceEpoch(epoch * 1000);
+  var format = new DateFormat.yMd().add_jm();
   var dateString = format.format(d);
   return dateString;
 }

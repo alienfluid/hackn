@@ -38,7 +38,7 @@ class DetailTile extends StatelessWidget {
             Container(
                 padding: const EdgeInsets.all(10.0),
                 child: Row(children: <Widget>[
-                  Text("authorname"),
+                  Text(this.post.author),
                   Spacer(flex: 4),
                   Text(getHumanTime(this.post.time)),
                   Spacer(flex: 4),
