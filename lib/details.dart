@@ -53,14 +53,6 @@ class _CommentThreadListState extends State<CommentThreadList> {
     }, onDone: () {});
   }
 
-  String nonNull(String s) {
-    if (s == null) {
-      return "";
-    } else {
-      return s;
-    }
-  }
-
   Widget formatComment(String c) {
     if (c == null) {
       return Text("");
@@ -71,24 +63,27 @@ class _CommentThreadListState extends State<CommentThreadList> {
 
   Widget formatAuthor(String author, int time) {
     return Container(
+        padding: EdgeInsets.fromLTRB(0, 0, 0, 5),
         child: Row(children: <Widget>[
-      Icon(Icons.person, color: Colors.blueGrey),
-      Text(nonNull(author)),
-      Spacer(),
-      Text(getTimeAgo(time)),
-      Spacer(flex: 8)
-    ]));
+          Icon(Icons.person, color: Colors.blueGrey),
+          Text(author, style: TextStyle(color: Colors.deepOrange)),
+          Spacer(),
+          Text(getTimeAgo(time)),
+          Spacer(flex: 8)
+        ]));
   }
 
   List<Widget> composeComments(CommentThread t, int depth, List<Widget> acc) {
-    var x = Container(
-        padding: EdgeInsets.fromLTRB(depth * 8.0, 5, 0, 0),
-        child: Column(children: <Widget>[
-          formatAuthor(t.root.author, t.root.time),
-          formatComment(t.root.text)
-        ]));
+    if (t.root.deleted == null || t.root.deleted != true) {
+      var x = Container(
+          padding: EdgeInsets.fromLTRB(5 + (depth * 8.0), 5, 0, 0),
+          child: Column(children: <Widget>[
+            formatAuthor(t.root.author, t.root.time),
+            formatComment(t.root.text)
+          ]));
 
-    acc.add(x);
+      acc.add(x);
+    }
 
     for (final c in t.children) {
       composeComments(c, depth + 1, acc);
@@ -130,7 +125,8 @@ class DetailTile extends StatelessWidget {
             Container(
                 padding: const EdgeInsets.all(10.0),
                 child: Row(children: <Widget>[
-                  Text(this.post.author),
+                  Text(this.post.author,
+                      style: TextStyle(color: Colors.deepOrange)),
                   Spacer(flex: 4),
                   Text(getHumanTime(this.post.time)),
                   Spacer(flex: 4),
@@ -138,14 +134,17 @@ class DetailTile extends StatelessWidget {
                   Container(
                       padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
                       child: Text(
-                        "345",
+                        this.post.score.toString(),
                         textScaleFactor: 1.2,
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       )),
                   Spacer(),
                   Icon(Icons.comment, color: Colors.grey),
                   Container(
                       padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
-                      child: Text("456", textScaleFactor: 1.2)),
+                      child: Text(this.post.descendants.toString(),
+                          textScaleFactor: 1.2,
+                          style: TextStyle(fontWeight: FontWeight.bold))),
                 ])),
             Container(
                 padding: EdgeInsets.all(10.0),

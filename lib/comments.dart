@@ -41,6 +41,7 @@ class Comment {
   final String text;
   final int time;
   final String type;
+  final bool deleted;
 
   Comment(
       {this.author,
@@ -49,7 +50,8 @@ class Comment {
       this.parent,
       this.text,
       this.time,
-      this.type});
+      this.type,
+      this.deleted});
 
   factory Comment.fromJson(Map<String, dynamic> json) {
     var k = json['kids'];
@@ -68,6 +70,7 @@ class Comment {
       type: json['type'],
       kids: kids,
       parent: json['parent'],
+      deleted: json['deleted']
     );
   }
 }
