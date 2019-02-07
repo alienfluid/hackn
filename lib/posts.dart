@@ -34,7 +34,8 @@ class PostWidget extends StatelessWidget {
       this.title,
       this.type,
       this.url,
-      this.descendants});
+      this.descendants,
+      this.kids});
 
   final String author;
   final int id;
@@ -44,6 +45,7 @@ class PostWidget extends StatelessWidget {
   final String type;
   final String url;
   final int descendants;
+  final List<dynamic> kids;
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +99,7 @@ class PostWidget extends StatelessWidget {
       type: json['type'],
       url: json['url'],
       descendants: json['descendants'],
+      kids: json['kids'],
     );
   }
 }
