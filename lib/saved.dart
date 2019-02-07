@@ -48,30 +48,25 @@ class _SavedPageState extends State<SavedPage> {
       ),
     );
 
-    loadPosts();
+    listenForPosts();
   }
 
-  loadPosts() async {
-    var p = await getSavedPosts();
-    if (p == null) {
-      return;
-    }
-    print("got saved posts to load: " + p.length.toString());
-    for (final x in p) {
-      x.then((pw) {
+  listenForPosts() async {
+    var stream = await getSavedPosts();
+    stream.listen((post) {
+      if (this.mounted) {
         setState(() {
-          posts.add(pw);
-          posts.sort((a, b) => b.time.compareTo(a.time));
+          posts.add(post);
         });
-      });
-    }
+      }
+    }, onDone: () {});
   }
 
   Future<void> onRefresh() async {
     print("refreshed");
     setState(() {
       posts.clear();
-      loadPosts();
+      listenForPosts();
     });
   }
 
@@ -102,25 +97,25 @@ class _SavedPageState extends State<SavedPage> {
             shrinkWrap: true,
             padding: const EdgeInsets.all(10.0),
             children: posts.map((p) {
-                return Dismissible(
-                    child: p,
-                    key: new Key(p.id.toString()),
-                    direction: DismissDirection.endToStart,
-                    background: new Container(
-                        color: Colors.blueAccent,
-                        child: Center(child: Text('No Action'))),
-                    secondaryBackground: new Container(
-                        color: Colors.redAccent,
-                        child: Center(child: Text('Delete'))),
-                    onDismissed: (dir) {
-                      if (dir == DismissDirection.startToEnd) {
-                        print("no action");
-                      } else {
-                        posts.remove(p);
-                        deleteSavedPost(p);
-                      }
-                    });
-              }).toList(),
+              return Dismissible(
+                  child: p,
+                  key: new Key(p.id.toString()),
+                  direction: DismissDirection.endToStart,
+                  background: new Container(
+                      color: Colors.blueAccent,
+                      child: Center(child: Text('No Action'))),
+                  secondaryBackground: new Container(
+                      color: Colors.redAccent,
+                      child: Center(child: Text('Delete'))),
+                  onDismissed: (dir) {
+                    if (dir == DismissDirection.startToEnd) {
+                      print("no action");
+                    } else {
+                      posts.remove(p);
+                      deleteSavedPost(p);
+                    }
+                  });
+            }).toList(),
           )),
       bottomNavigationBar: makeBottom,
     );

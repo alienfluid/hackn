@@ -95,11 +95,12 @@ class _MyHomePageState extends State<MyHomePage> {
   listenForPosts() async {
     var stream = await getPosts();
     stream.listen((post) {
-      setState(() {
-        posts.add(post);
-      });
-    }, onDone: () {
-    });
+      if (this.mounted) {
+        setState(() {
+          posts.add(post);
+        });
+      }
+    }, onDone: () {});
   }
 
   Future<void> onRefresh() async {

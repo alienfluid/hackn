@@ -29,7 +29,8 @@ class _ArchivedPageState extends State<ArchivedPage> {
             IconButton(
               icon: Icon(Icons.home, color: Colors.white),
               onPressed: () {
-                Navigator.popUntil(context, ModalRoute.withName(Navigator.defaultRouteName));
+                Navigator.popUntil(
+                    context, ModalRoute.withName(Navigator.defaultRouteName));
               },
             ),
             IconButton(
@@ -47,30 +48,25 @@ class _ArchivedPageState extends State<ArchivedPage> {
       ),
     );
 
-    loadPosts();
+    listenForPosts();
   }
 
- loadPosts() async {
-    var p = await getArchivedPosts();
-    if (p == null) {
-      return;
-    }
-    print("got archived posts to load: " + p.length.toString());
-    for (final x in p) {
-      x.then((pw) {
+  listenForPosts() async {
+    var stream = await getArchivedPosts();
+    stream.listen((post) {
+      if (this.mounted) {
         setState(() {
-          posts.add(pw);
-          posts.sort((a, b) => b.time.compareTo(a.time));
+          posts.add(post);
         });
-      });
-    }
+      }
+    }, onDone: () {});
   }
 
   Future<void> onRefresh() async {
     print("refreshed");
     setState(() {
       posts.clear();
-      loadPosts();
+      listenForPosts();
     });
   }
 
@@ -101,25 +97,25 @@ class _ArchivedPageState extends State<ArchivedPage> {
             shrinkWrap: true,
             padding: const EdgeInsets.all(10.0),
             children: posts.map((p) {
-                return Dismissible(
-                    child: p,
-                    key: new Key(p.id.toString()),
-                    direction: DismissDirection.endToStart,
-                    background: new Container(
-                        color: Colors.blueAccent,
-                        child: Center(child: Text('No Action'))),
-                    secondaryBackground: new Container(
-                        color: Colors.blueGrey,
-                        child: Center(child: Text('Unarchive'))),
-                    onDismissed: (dir) {
-                      if (dir == DismissDirection.startToEnd) {
-                        print("no action");
-                      } else {
-                        posts.remove(p);
-                        deleteArchivedPost(p);
-                      }
-                    });
-              }).toList(),
+              return Dismissible(
+                  child: p,
+                  key: new Key(p.id.toString()),
+                  direction: DismissDirection.endToStart,
+                  background: new Container(
+                      color: Colors.blueAccent,
+                      child: Center(child: Text('No Action'))),
+                  secondaryBackground: new Container(
+                      color: Colors.blueGrey,
+                      child: Center(child: Text('Unarchive'))),
+                  onDismissed: (dir) {
+                    if (dir == DismissDirection.startToEnd) {
+                      print("no action");
+                    } else {
+                      posts.remove(p);
+                      deleteArchivedPost(p);
+                    }
+                  });
+            }).toList(),
           )),
       bottomNavigationBar: makeBottom,
     );

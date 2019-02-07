@@ -150,32 +150,23 @@ Future<Stream<PostWidget>> getPosts() async {
   }
 }
 
-Future<List<Future<PostWidget>>> getSavedPosts() async {
-  var client = new http.Client();
-  var ids = await getPostIds(_saved_pref_name);
+Future<Stream<PostWidget>> getPersistedPosts(loc) async {
+  var ids = await getPostIds(loc);
+  var x;
   if (ids != null) {
-    print("saved posts: " + ids.length.toString());
-    var posts = ids.map((id) => fetchPost(int.parse(id), client)).toList();
-    return posts;
+    x = ids.map((i) => int.parse(i)).toList();
   } else {
-    print("saved posts null");
+    x = new List<int>();
   }
-
-  return null;
+  return streamPosts(x, null);
 }
 
-Future<List<Future<PostWidget>>> getArchivedPosts() async {
-  var client = new http.Client();
-  var ids = await getPostIds(_archived_pref_name);
-  if (ids != null) {
-    print("archived posts: " + ids.length.toString());
-    var posts = ids.map((id) => fetchPost(int.parse(id), client)).toList();
-    return posts;
-  } else {
-    print("archived posts null");
-  }
+Future<Stream<PostWidget>> getSavedPosts() async {
+  return getPersistedPosts(_saved_pref_name);
+}
 
-  return null;
+Future<Stream<PostWidget>> getArchivedPosts() async {
+  return getPersistedPosts(_archived_pref_name);
 }
 
 Future<List<String>> getPostIds(loc) async {
